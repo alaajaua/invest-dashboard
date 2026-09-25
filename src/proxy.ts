@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // 세션 쿠키를 갱신하고, 로그인하지 않은 사용자는 /login으로 보낸다.
+// /api/cron은 CRON_SECRET으로 따로 인증하므로 제외.
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -41,6 +42,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api/cron|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
