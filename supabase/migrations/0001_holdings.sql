@@ -14,4 +14,4 @@ create table if not exists public.holdings (
 alter table public.holdings enable row level security;
 
 create policy "holdings_owner_all" on public.holdings
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  for all using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
