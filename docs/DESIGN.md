@@ -94,10 +94,10 @@
 
 - **프레임워크**: Next.js (App Router) + TypeScript + Tailwind
 - **차트**: Recharts (가격/지표), React Flow (인과 흐름도)
-- **DB**: Postgres (Neon 무료) + Drizzle ORM. 보유 종목, 일지, API 캐시 저장
+- **DB·인증**: Supabase (Postgres + Auth). 보유 종목, 일지, API 캐시 저장. RLS로 본인 데이터만 접근
 - **정기 갱신**: Vercel Cron (하루 1회, 미국 장 마감 후)
 - **AI**: Anthropic SDK, 브리핑·해설은 하루 1회 생성 후 캐시 (비용 최소화)
-- **비밀값**: `ALPHAVANTAGE_API_KEY`, `ANTHROPIC_API_KEY`, `DATABASE_URL` → 서버 환경변수
+- **비밀값**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `ALPHAVANTAGE_API_KEY`, `ANTHROPIC_API_KEY` → 환경변수
 - **배포**: Vercel
 
 ## 8. 구현 단계 (제안)
@@ -109,9 +109,8 @@
 5. **AI 해설**: 브리핑, 종목 전망, 인과 흐름도
 6. **학습**: 용어 툴팁, 투자 일지
 
-## 9. 확인이 필요한 점
+## 9. 확정 사항
 
-- DB로 Neon Postgres를 써도 되는지 (대안: Supabase, 또는 로그인 없이 쓰는 1인용)
-- 로그인 필요 여부 (1인용이면 간단한 비밀번호 보호만)
-- 시그널 가중치 초안에 동의하는지
+- DB·인증: Supabase (기존 계정 사용), 1인용 이메일/비밀번호 로그인
+- 시그널 가중치: 초안대로 시작, 추후 조정
 - 투자 정보는 참고용이며 최종 판단은 사용자 책임이라는 안내 문구 표시
