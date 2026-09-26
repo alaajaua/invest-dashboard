@@ -11,7 +11,12 @@ export async function refreshData(): Promise<CollectResult | { error: string }> 
   } = await supabase.auth.getUser();
   if (!user) return { error: "로그인이 필요합니다." };
 
-  const result = await collect({ reserve: 0, deadlineMs: 50_000 });
-  revalidatePath("/");
-  return result;
+  try {
+    const result = await collect({ reserve: 0, deadlineMs: 50_000 });
+    revalidatePath("/");
+    return result;
+  } catch (e) {
+    console.error("refreshData failed", e);
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
 }

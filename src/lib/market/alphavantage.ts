@@ -10,7 +10,9 @@ export class RateLimitError extends Error {
 export async function avFetch(params: Record<string, string>): Promise<Record<string, unknown>> {
   const url = new URL(BASE_URL);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-  url.searchParams.set("apikey", process.env.ALPHAVANTAGE_API_KEY!);
+  const apiKey = process.env.ALPHAVANTAGE_API_KEY?.trim();
+  if (!apiKey) throw new Error("환경변수 ALPHAVANTAGE_API_KEY가 비어 있습니다.");
+  url.searchParams.set("apikey", apiKey);
 
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Alpha Vantage HTTP ${res.status}`);

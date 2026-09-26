@@ -7,6 +7,10 @@ export async function GET(request: Request) {
   if (request.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
     return new Response("Unauthorized", { status: 401 });
   }
-  const result = await collect({ reserve: 3, deadlineMs: 50_000 });
-  return Response.json(result);
+  try {
+    return Response.json(await collect({ reserve: 3, deadlineMs: 50_000 }));
+  } catch (e) {
+    console.error("cron collect failed", e);
+    return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
+  }
 }

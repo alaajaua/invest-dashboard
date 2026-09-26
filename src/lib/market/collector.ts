@@ -77,11 +77,16 @@ export async function collect({ reserve = 0, deadlineMs = 50_000 } = {}): Promis
   const db = createAdminClient();
   const today = new Date().toISOString().slice(0, 10);
 
-  const [{ data: usage }, { data: holdings }, { data: cache }] = await Promise.all([
+  const [usageRes, holdingsRes, cacheRes] = await Promise.all([
     db.from("api_usage").select("calls").eq("day", today).maybeSingle(),
     db.from("holdings").select("symbol"),
     db.from("market_cache").select("key, fetched_at, data->Sector"),
   ]);
+  const dbError = usageRes.error ?? holdingsRes.error ?? cacheRes.error;
+  if (dbError) throw new Error(`Supabase 조회 실패 (service role 키 확인): ${dbError.message}`);
+  const usage = usageRes.data;
+  const holdings = holdingsRes.data;
+  const cache = cacheRes.data;
 
   let calls = usage?.calls ?? 0;
   const symbols = [...new Set((holdings ?? []).map((h) => h.symbol as string))].sort();
@@ -111,7 +116,8 @@ export async function collect({ reserve = 0, deadlineMs = 50_000 } = {}): Promis
     }
 
     calls++;
-    await db.from("api_usage").upsert({ day: today, calls });
+    const { error: usageError } = await db.from("api_usage").upsert({ day: today, calls });
+    if (usageError) throw new Error(`사용량 기록 실패: ${usageError.message}`);
     try {
       const data = task.parse(await avFetch(task.params));
       const { error } = await db.from("market_cache").upsert({ key: task.key, data, fetched_at: new Date().toISOString() });
