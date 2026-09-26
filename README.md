@@ -1,6 +1,6 @@
 # 투자 대시보드
 
-보유한 미국 주식/ETF의 흐름·맥락·전망을 한눈에 보는 개인용 대시보드. 설계는 [docs/DESIGN.md](docs/DESIGN.md) 참고.
+내 미국 주식/ETF를 움직이는 흐름·맥락·영향을 그림과 쉬운 말로 보여 주는 개인용 대시보드. 설계는 [docs/DESIGN.md](docs/DESIGN.md) 참고.
 
 ## 처음 설정
 
@@ -24,6 +24,7 @@ npm run dev   # http://localhost:3000
 2. Settings > Environment Variables에 `.env.example`의 값을 모두 입력 (`ANTHROPIC_API_KEY`는 5단계부터)
 3. 배포하면 `vercel.json`의 크론이 자동 등록됨
    - 평일 21:30 UTC (한국 06:30, 미국 장 마감 후): 시세·뉴스·금리 갱신
+   - 평일 22:45 UTC (한국 07:45): Claude가 영향 지도·해설 생성 (`ANTHROPIC_API_KEY` 필요)
    - 매일 13:00 UTC (한국 22:00): 남은 작업(주간·월간 데이터) 처리
 
 ## 데이터 수집 방식

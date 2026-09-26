@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "투자 대시보드",
-  description: "보유 종목의 흐름·맥락·전망을 한눈에",
+  description: "내 종목을 움직이는 흐름과 맥락을 한눈에",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -35,7 +35,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         {user && (
           <nav className="flex items-center gap-4 border-b px-4 py-3 text-sm">
             <Link href="/" className="font-bold">투자 대시보드</Link>
-            <Link href="/settings">보유 종목</Link>
+            <Link href="/settings">내 종목</Link>
             <form action={logout} className="ml-auto">
               <button className="opacity-70 hover:opacity-100">로그아웃</button>
             </form>
