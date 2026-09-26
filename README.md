@@ -8,7 +8,7 @@
 2. **로그인 계정 만들기**: Authentication > Users > Add user (이메일·비밀번호, "Auto Confirm" 체크)
    - 혼자 쓰므로 Authentication > Sign In / Providers에서 "Allow new users to sign up"은 끄는 것을 권장
 3. **환경변수**: `.env.example`을 `.env.local`로 복사하고 값 입력
-   - Supabase URL·anon key·service_role key: Project Settings > API
+   - Supabase service_role(secret) key: Project Settings > API Keys (공개 URL·키는 `src/lib/supabase/config.ts`에 있음)
    - `ALPHAVANTAGE_API_KEY`: 발급받은 키
    - `CRON_SECRET`: 아무 긴 임의 문자열 (예: `openssl rand -hex 32`)
 4. 실행:
