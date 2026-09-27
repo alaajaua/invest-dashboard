@@ -1,14 +1,8 @@
 import Link from "next/link";
-import { INSIGHT_KEY } from "@/lib/insight/generate";
-import type { InsightRecord } from "@/lib/insight/schema";
-import { DAILY_LIMIT } from "@/lib/market/collector";
+import { INSIGHT_KEY, type InsightRecord } from "@/lib/insight/schema";
 import { createClient } from "@/lib/supabase/server";
 import { ExplainText } from "./explain-text";
 import { InfluenceMap, STATUS } from "./influence-map";
-import { RefreshButtons } from "./refresh-button";
-
-// AI 해설 생성(Server Action)이 1분 이상 걸릴 수 있다.
-export const maxDuration = 300;
 
 const WEATHER = { sunny: "☀️", cloudy: "⛅", stormy: "⛈️" };
 
@@ -17,13 +11,9 @@ const fmtTime = (iso: string) =>
 
 export default async function Home() {
   const supabase = await createClient();
-  const today = new Date().toISOString().slice(0, 10);
-
-  const [{ data: holdings }, { data: insightRow }, { data: usage }, { count: cacheCount }] = await Promise.all([
+  const [{ data: holdings }, { data: insightRow }] = await Promise.all([
     supabase.from("holdings").select("symbol").order("symbol"),
     supabase.from("market_cache").select("data").eq("key", INSIGHT_KEY).maybeSingle(),
-    supabase.from("api_usage").select("calls").eq("day", today).maybeSingle(),
-    supabase.from("market_cache").select("key", { count: "exact", head: true }).neq("key", INSIGHT_KEY),
   ]);
   const record = insightRow?.data as InsightRecord | undefined;
   const insight = record?.insight;
@@ -99,15 +89,14 @@ export default async function Home() {
         </>
       ) : (
         <p className="rounded-lg border p-4 opacity-80">
-          데이터가 모이면 매일 아침 AI가 영향 지도를 만듭니다. 지금 바로 보려면 아래에서 <b>데이터 갱신</b> 후 <b>AI 해설 새로 만들기</b>를 누르세요.
+          평일 밤 10시쯤 Claude 예약 작업이 데이터를 모아 영향 지도를 만듭니다. 바로 보고 싶다면 Claude의 예약 작업 목록에서 이 작업을 즉시 실행하세요.
         </p>
       )}
 
       <footer className="flex flex-col gap-2 border-t pt-4 text-sm">
         <p className="opacity-60">
-          등록 종목 {holdings.length}개 · 수집된 데이터 {cacheCount ?? 0}건 · 오늘 API 사용 {usage?.calls ?? 0}/{DAILY_LIMIT}회
+          등록 종목 {holdings.length}개 · 평일 밤 10시쯤 Claude 예약 작업이 새 해설을 만듭니다. 종목을 바꾸면 다음 실행부터 반영됩니다.
         </p>
-        <RefreshButtons />
         <p className="text-xs opacity-50">AI 해설은 이해를 돕기 위한 참고 자료이며 투자 권유가 아닙니다. 최종 판단은 본인의 몫입니다.</p>
       </footer>
     </section>

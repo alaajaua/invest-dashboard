@@ -2,43 +2,27 @@
 
 내 미국 주식/ETF를 움직이는 흐름·맥락·영향을 그림과 쉬운 말로 보여 주는 개인용 대시보드. 설계는 [docs/DESIGN.md](docs/DESIGN.md) 참고.
 
+## 구조
+
+```
+Claude 예약 작업 (평일 21:46 KST, docs/ROUTINE.md)
+  ├ Supabase 커넥터: 내 종목 읽기
+  ├ Alpha Vantage 커넥터: 시세·뉴스·금리·물가 수집
+  ├ 영향 지도·해설 작성
+  └ Supabase 커넥터: market_cache('insight:map')에 저장
+대시보드 (Vercel, Next.js) → 로그인 후 저장된 해설을 읽어서 그림으로 보여 줌
+```
+
+API 키나 서버 비밀값이 필요 없다. Vercel 환경변수도 필요 없다.
+
 ## 처음 설정
 
-1. **Supabase 테이블 생성**: Supabase 대시보드 > SQL Editor에서 `supabase/migrations/` 안의 SQL을 순서대로 실행
-2. **로그인 계정 만들기**: Authentication > Users > Add user (이메일·비밀번호, "Auto Confirm" 체크)
-   - 혼자 쓰므로 Authentication > Sign In / Providers에서 "Allow new users to sign up"은 끄는 것을 권장
-3. **환경변수**: `.env.example`을 `.env.local`로 복사하고 값 입력
-   - Supabase service_role(secret) key: Project Settings > API Keys (공개 URL·키는 `src/lib/supabase/config.ts`에 있음)
-   - `ALPHAVANTAGE_API_KEY`: 발급받은 키
-   - `CRON_SECRET`: 아무 긴 임의 문자열 (예: `openssl rand -hex 32`)
-4. 실행:
+1. **Supabase 테이블**: SQL Editor에서 `supabase/migrations/`의 SQL을 순서대로 실행
+2. **로그인 계정**: Authentication > Users > Add user (Auto Confirm 체크), 신규 가입은 끄기
+3. **예약 작업**: claude.ai의 Routines에서 `docs/ROUTINE.md` 지시문으로 예약 작업을 만들고, **Supabase·Alpha Vantage 커넥터를 연결**
+4. **Vercel**: 저장소를 Import하면 끝 (환경변수 없음)
 
 ```bash
 npm install
 npm run dev   # http://localhost:3000
 ```
-
-## Vercel 배포
-
-1. Vercel에서 이 저장소를 Import
-2. Settings > Environment Variables에 `.env.example`의 값을 모두 입력 (`ANTHROPIC_API_KEY`는 5단계부터)
-3. 배포하면 `vercel.json`의 크론이 자동 등록됨
-   - 평일 21:30 UTC (한국 06:30, 미국 장 마감 후): 시세·뉴스·금리 갱신
-   - 평일 22:45 UTC (한국 07:45): Claude가 영향 지도·해설 생성 (`ANTHROPIC_API_KEY` 필요)
-   - 매일 13:00 UTC (한국 22:00): 남은 작업(주간·월간 데이터) 처리
-
-## 데이터 수집 방식
-
-무료 키는 하루 25회 제한이라 **오래된 데이터만, 중요한 순서대로** 가져온다 (`src/lib/market/collector.ts`).
-
-| 순서 | 데이터 | 갱신 주기 |
-|---|---|---|
-| 1 | 보유 종목 일별 시세 (최근 100일) | 18시간 |
-| 2 | SPY (시장 기준) | 18시간 |
-| 3 | 종목별 뉴스·심리 | 44시간 |
-| 4 | 10년 국채금리 | 18시간 |
-| 5 | 보유 섹터 ETF 시세 | 18시간 |
-| 6 | 기업 개요·실적 | 7일 |
-| 7 | 기준금리·CPI·실업률 | 7일 |
-
-예산이 부족하면 뒤쪽 작업은 다음 실행으로 미뤄진다. 크론은 수동 새로고침용으로 3회를 남겨 둔다.
