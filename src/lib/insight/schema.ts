@@ -29,3 +29,28 @@ export type Insight = {
 };
 
 export type InsightRecord = { generatedAt: string; insight: Insight };
+
+// 종목 상세 화면용. 예약 작업이 종목마다 market_cache('stock:<SYMBOL>')에 저장한다.
+export const stockKey = (symbol: string) => `stock:${symbol}`;
+
+export type Impact = "positive" | "negative" | "neutral";
+
+export type StockDetail = {
+  symbol: string;
+  name: string;
+  intro: { what: string; howMoney: string; sector: string };
+  prices: { date: string; close: number }[];
+  events: { date: string; title: string; explanation: string; impact: Impact }[];
+  drivers: { name: string; status: Status; explanation: string }[];
+  scenarios: {
+    bull: { conditions: string; meaning: string };
+    base: { conditions: string; meaning: string };
+    bear: { conditions: string; meaning: string };
+  };
+  upcoming: { date: string; what: string }[];
+  risks: string[];
+  news: { date: string; title: string; source: string; url: string; impact: Impact }[];
+  glossary: { term: string; easy: string }[];
+};
+
+export type StockRecord = { generatedAt: string; detail: StockDetail };

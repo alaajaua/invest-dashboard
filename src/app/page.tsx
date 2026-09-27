@@ -2,7 +2,8 @@ import Link from "next/link";
 import { INSIGHT_KEY, type InsightRecord } from "@/lib/insight/schema";
 import { createClient } from "@/lib/supabase/server";
 import { ExplainText } from "./explain-text";
-import { InfluenceMap, STATUS } from "./influence-map";
+import { STATUS } from "@/lib/insight/style";
+import { InfluenceMap } from "./influence-map";
 
 const WEATHER = { sunny: "☀️", cloudy: "⛅", stormy: "⛈️" };
 
@@ -55,12 +56,16 @@ export default async function Home() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-bold">종목별 이야기</h2>
+            <h2 className="text-lg font-bold">종목별 이야기 <span className="text-sm font-normal opacity-60">눌러서 자세히 보기</span></h2>
             <div className="grid gap-3 md:grid-cols-2">
               {insight.holdings.map((h) => {
                 const s = STATUS[h.status];
                 return (
-                  <article key={h.symbol} className="flex flex-col gap-2 rounded-lg border p-4 text-sm leading-relaxed">
+                  <Link
+                    key={h.symbol}
+                    href={`/stock/${h.symbol}`}
+                    className="flex flex-col gap-2 rounded-lg border p-4 text-sm leading-relaxed transition-colors hover:bg-foreground/5"
+                  >
                     <h3 className="text-base font-bold">
                       <span style={{ color: s.color }}>{s.icon}</span> {h.symbol}{" "}
                       <span className="text-xs font-normal opacity-70">{h.name} · {s.label}</span>
@@ -70,7 +75,8 @@ export default async function Home() {
                     {h.watch.length > 0 && (
                       <ul className="list-disc pl-5 opacity-80">{h.watch.map((w, i) => <li key={i}>{w}</li>)}</ul>
                     )}
-                  </article>
+                    <span className="pt-1 font-medium opacity-70">자세히 보기 · 전망 →</span>
+                  </Link>
                 );
               })}
             </div>

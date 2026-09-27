@@ -1,16 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import type { Insight } from "@/lib/insight/schema";
+import { STATUS } from "@/lib/insight/style";
 
 type Status = Insight["factors"][number]["status"];
 
-// 상태 색은 항상 기호·글자와 함께 쓴다 (색만으로 의미를 전달하지 않음)
-export const STATUS: Record<Status, { color: string; icon: string; label: string }> = {
-  tailwind: { color: "#0ca30c", icon: "▲", label: "순풍" },
-  headwind: { color: "#d03b3b", icon: "▼", label: "역풍" },
-  mixed: { color: "#fab219", icon: "◆", label: "혼재" },
-};
 const EFFECT = { positive: STATUS.tailwind.color, negative: STATUS.headwind.color };
 const WIDTH = { weak: 1.5, medium: 3, strong: 5 };
 
@@ -132,6 +128,9 @@ export function InfluenceMap({ insight }: { insight: Insight }) {
       {holding && (
         <DetailCard title={`${holding.symbol} · ${holding.name}`} status={holding.status}>
           <p>{holding.oneLiner}</p>
+          <Link href={`/stock/${holding.symbol}`} className="w-fit font-medium underline underline-offset-4">
+            {holding.symbol} 자세히 보기 · 전망 →
+          </Link>
           <p><b>최근 1개월:</b> {holding.flow}</p>
           <Related
             items={related.map((l) => ({ name: factors.find((f) => f.id === l.from)?.name ?? l.from, effect: l.effect, why: l.why }))}
